@@ -1,0 +1,20 @@
+plugins {
+
+}
+
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+
+
+    group = 'com.alikgizatulin'
+    version = '1.0'
+    sourceCompatibility = JavaVersion.VERSION_21
+
+
+    repositories {
+        mavenCentral()
+    }
+
+}
