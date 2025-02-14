@@ -1,2 +1,6 @@
 rootProject.name = 'team-cloud'
+include 'user-service'
+include 'gateway-service'
+include 'common-library'
+include 'team-service'
 

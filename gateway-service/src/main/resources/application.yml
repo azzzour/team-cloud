@@ -1,0 +1,17 @@
+server:
+  port: 8087
+
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9090/realms/TeamCloud
+        registration:
+          gateway:
+            provider: keycloak
+            client-id: gateway
+            scope:
+              - openid

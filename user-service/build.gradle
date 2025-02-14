@@ -1,0 +1,20 @@
+plugins {
+    id 'org.springframework.boot' version '3.4.0'
+}
+
+
+/**
+ * Spring
+ */
+dependencies {
+    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-resource-server'
+    implementation group: 'org.keycloak', name: 'keycloak-admin-client', version: '26.0.3'
+}
+
+/*Common library*/
+dependencies {
+    implementation project(':common-library')
+}
