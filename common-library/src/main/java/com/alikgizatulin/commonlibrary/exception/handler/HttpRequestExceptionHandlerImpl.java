@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Optional;
 
 @Component
@@ -62,7 +64,22 @@ public class HttpRequestExceptionHandlerImpl implements HttpRequestExceptionHand
     private void logException(Throwable ex, String message,
                               WebRequest request) {
         String requestView = this.webRequestView(request);
-        log.error("An exception occurred '{}' from request '{}' with message '{}'",ex.getClass(),requestView,message);
+        log.error("An exception occurred '{}' from request '{}' with message '{}'",
+                ex.getClass(), requestView, message);
+
+        if (log.isDebugEnabled()) {
+            String causeClass = ex.getCause() != null ? ex.getCause().getClass().toString() : "No cause";
+            String causeMessage = ex.getCause() != null ? ex.getCause().getMessage() : "No cause message";
+
+            log.debug("Detailed error info: cause class: '{}', cause message: '{}'", causeClass, causeMessage);
+        }
+
+        if (log.isTraceEnabled()) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            log.trace("Stack trace: \n{}", sw);
+        }
     }
 
     private String webRequestView(WebRequest request) {

@@ -13,7 +13,7 @@ public class HttpRequestException extends RuntimeException {
     private final Object[] messageArgs;
     private final Instant timestamp;
 
-    public HttpRequestException(String message, HttpStatus httpStatus, String messageKey) {
+    public HttpRequestException(HttpStatus httpStatus, String message, String messageKey) {
         super(message);
         this.httpStatus = httpStatus;
         this.messageKey = messageKey;
@@ -21,11 +21,28 @@ public class HttpRequestException extends RuntimeException {
         this.timestamp = Instant.now();
     }
 
-    public HttpRequestException(HttpStatus httpStatus, String messageKey, Object... messageArgs) {
+
+    public HttpRequestException(HttpStatus httpStatus, String messageKey, Object[] messageArgs) {
         super();
         this.httpStatus = httpStatus;
         this.messageKey = messageKey;
         this.messageArgs = messageArgs;
+        this.timestamp = Instant.now();
+    }
+
+    public HttpRequestException(HttpStatus httpStatus, String messageKey) {
+        super();
+        this.httpStatus = httpStatus;
+        this.messageKey = messageKey;
+        this.messageArgs = null;
+        this.timestamp = Instant.now();
+    }
+
+    public HttpRequestException(HttpStatus httpStatus, String messageKey,Throwable cause) {
+        super(null, cause);
+        this.httpStatus = httpStatus;
+        this.messageKey = messageKey;
+        this.messageArgs = null;
         this.timestamp = Instant.now();
     }
 }

@@ -7,7 +7,7 @@ import static com.alikgizatulin.userapp.constant.ErrorCodes.USER_NOT_FOUND;
 public class UserNotFoundException extends NotFoundException {
 
     public UserNotFoundException(Object userId) {
-        super(USER_NOT_FOUND, userId);
+        super(USER_NOT_FOUND, new Object[]{userId});
     }
 
 

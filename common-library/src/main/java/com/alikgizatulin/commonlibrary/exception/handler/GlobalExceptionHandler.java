@@ -15,7 +15,8 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
 
-import static com.alikgizatulin.commonlibrary.exception.MessageCode.*;
+import static com.alikgizatulin.commonlibrary.exception.MessageCode.INVALID_REQUEST_ERROR;
+import static com.alikgizatulin.commonlibrary.exception.MessageCode.UNKNOWN_ERROR;
 
 @RestControllerAdvice()
 @RequiredArgsConstructor
@@ -24,10 +25,11 @@ public class GlobalExceptionHandler {
     private final HttpRequestExceptionHandler httpRequestExceptionHandler;
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDto> handleException(WebRequest request) {
+    public ResponseEntity<ErrorDto> handleException(WebRequest request, Exception ex) {
         HttpRequestException newEx = new HttpRequestException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                UNKNOWN_ERROR);
+                UNKNOWN_ERROR,
+                ex);
         return this.httpRequestExceptionHandler.handleException(newEx, request);
     }
 

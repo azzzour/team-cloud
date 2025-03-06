@@ -8,14 +8,19 @@ public class DetailedHttpRequestException extends HttpRequestException {
 
     private final Object details;
 
-    public DetailedHttpRequestException(String message, HttpStatus httpStatus, String messageKey, Object details,
-                                        Object... messageArgs) {
-        super(message, httpStatus, messageKey);
+    public DetailedHttpRequestException(HttpStatus httpStatus, String message, String messageKey, Object details) {
+        super(httpStatus, message, messageKey);
         this.details = details;
     }
-    public DetailedHttpRequestException(HttpStatus httpStatus, String messageKey, Object details,
-                                        Object... messageArgs) {
+
+    public DetailedHttpRequestException(HttpStatus httpStatus, String messageKey, Object[] messageArgs,
+                                        Object details) {
         super(httpStatus, messageKey, messageArgs);
+        this.details = details;
+    }
+
+    public DetailedHttpRequestException(HttpStatus httpStatus, String messageKey, Object details) {
+        super(httpStatus, messageKey);
         this.details = details;
     }
 }
