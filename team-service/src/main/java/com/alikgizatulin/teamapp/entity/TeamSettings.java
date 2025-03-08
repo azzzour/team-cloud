@@ -31,6 +31,7 @@ public class TeamSettings {
     @NonNull
     private UUID teamId;
 
+    @Builder.Default
     private UUID defaultRoleId = null;
 
     @Builder.Default

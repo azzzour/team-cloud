@@ -6,11 +6,11 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9090/realms/TeamCloud
+          issuer-uri: http://localhost:9090/realms/team_cloud
 
 
 keycloak:
   url: http://localhost:9090
-  realm: TeamCloud
+  realm: team_cloud
   id: user-manager
-  secret: BwccfQ8F2L0ZvQ4J5bdsmzCv7PDcLx1j
+  secret: lxvWH0hFhQSGVF9BdUqVsPkDJgFw3UlQ

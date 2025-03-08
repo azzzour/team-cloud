@@ -1,6 +1,7 @@
 package com.alikgizatulin.commonlibrary.exception.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,13 +10,12 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ValidationErrorDto {
 
     private String field;
 
-    @JsonProperty(value = "rejected_value")
     private Object rejectedValue;
 
-    @JsonProperty(value = "default_message")
     private String defaultMessage;
 }

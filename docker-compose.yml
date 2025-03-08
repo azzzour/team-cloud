@@ -3,12 +3,13 @@ version: '3.8'
 services:
   postgres:
     image: postgres:17.3
-    container_name: postgres_db
+    container_name: postgres
     environment:
       POSTGRES_USER: alik
       POSTGRES_PASSWORD: alik
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db-scripts/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
     networks:
@@ -27,6 +28,36 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     networks:
       - team_cloud_net
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    container_name: keycloak_idp
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloak_db
+      KC_DB_SCHEMA: keycloak_schema
+      KC_DB_USERNAME: alik
+      KC_DB_PASSWORD: alik
+
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+
+      KC_LOG_LEVEL: info
+      KC_HEALTH_ENABLED: true
+
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+    depends_on:
+      - postgres
+    ports:
+      - "9090:8080"
+    networks:
+      - team_cloud_net
+    command: start-dev --import-realm
     restart: unless-stopped
 
 
