@@ -16,7 +16,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("api/v1/users/**").authenticated())
+                        .requestMatchers("api/v1/users/**").authenticated()
+                        .anyRequest().denyAll())
                 .oauth2ResourceServer(oAuth2ResourceServe ->
                         oAuth2ResourceServe.jwt(jwtConfigurer ->
                                 jwtConfigurer.jwtAuthenticationConverter(new KeycloakJwtAuthenticationConverter())))

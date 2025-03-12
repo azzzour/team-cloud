@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record CreateTeamRequest(
+public record CreateTeamWithSettingsRequest(
                                 @NotNull(message=  "{create.team.request.name.not.null}")
                                 @Length(min = 5, max = 20,message = "{create.team.request.name.length.constraint}")
                                 String name,

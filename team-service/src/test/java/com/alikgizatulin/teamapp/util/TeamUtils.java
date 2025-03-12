@@ -6,17 +6,17 @@ import java.util.UUID;
 
 public class TeamUtils {
 
-    public static Team getTestTeamByTeamIdAndOwnerId(UUID teamId,String ownerId) {
+
+    public static Team getTestTeamPersisted(UUID teamId) {
         return Team.builder()
                 .id(teamId)
                 .name("test_name")
-                .ownerId(ownerId)
+                .ownerId("test_ownerId")
                 .build();
     }
 
-    public static Team getTestTeamByTeamId(UUID teamId) {
+    public static Team getTestTeamTransient() {
         return Team.builder()
-                .id(teamId)
                 .name("test_name")
                 .ownerId("test_ownerId")
                 .build();

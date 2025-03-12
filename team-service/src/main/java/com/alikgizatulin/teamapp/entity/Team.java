@@ -62,6 +62,20 @@ public class Team {
         teamMember.setTeam(this);
     }
 
+   /* public void removeTeamMember(@NonNull TeamMember teamMember) {
+        if(teamMember.getTeam() == null) {
+            throw new IllegalArgumentException();
+        }
+        if(teamMember.getTeam() != this) {
+            throw new IllegalArgumentException();
+        }
+        if (!this.teamMembers.contains(teamMember)) {
+            throw new IllegalArgumentException("The team with id: {%s} does not contain this teamMember"
+                    .formatted(this.id));
+        }
+        teamMember.setStatus(TeamMember.MemberStatus.REMOVED);
+    }*/
+
     public List<TeamMember> getTeamMember() {
         return Collections.unmodifiableList(this.teamMembers);
     }

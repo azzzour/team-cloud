@@ -27,7 +27,7 @@ public class TeamMember {
 
     @ManyToOne
     @JoinColumn(name = "team_id", nullable = false,updatable = false)
-    Team team;
+    private Team team;
 
     @NonNull
     @Column(nullable = false,updatable = false)

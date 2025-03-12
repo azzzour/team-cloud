@@ -12,7 +12,8 @@ public class TeamNotFoundException extends NotFoundException {
         super(message, messageKey);
     }
 
-    public TeamNotFoundException(UUID teamId) {
-        super(TEAM_NOT_FOUND, new Object[]{teamId});
+
+    public TeamNotFoundException(UUID id) {
+        super(TEAM_NOT_FOUND, new Object[]{id});
     }
 }

@@ -18,7 +18,6 @@ public class UserController {
 
     @GetMapping(GET_PROFILE)
     public ResponseEntity<?> getUserDetails(Authentication authentication) {
-        System.out.println("test");
         return ResponseEntity.ok().body(this.keycloakAdminClient.getUserById(authentication.getName()));
     }
 }

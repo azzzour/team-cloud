@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "team_settings", uniqueConstraints = {
-        @UniqueConstraint(name = "unique_team_setting", columnNames = "team_id"),
         @UniqueConstraint(name = "unique_default_role", columnNames = "default_role_id")
 })
 @Getter
@@ -20,16 +19,17 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @ToString
-@EqualsAndHashCode(of = "teamId")
+@EqualsAndHashCode(of = "id")
 public class TeamSettings {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
-    @Column(nullable = false)
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY,optional = false)
+    @JoinColumn(name = "id")
     @NonNull
-    private UUID teamId;
+    private Team team;
 
     @Builder.Default
     private UUID defaultRoleId = null;
