@@ -40,6 +40,7 @@ public class KeycloakAdminClientDefaultImpl implements KeycloakAdminClient {
         RealmResource realmResource = this.keycloakClient.realm(properties.getRealm());
         try {
             var representation = realmResource.users().get(id).toRepresentation();
+            realmResource.users().get(id).getUnmanagedAttributes();
             return UserProfileDto
                     .builder()
                     .name(representation.getFirstName() + " " + representation.getLastName())

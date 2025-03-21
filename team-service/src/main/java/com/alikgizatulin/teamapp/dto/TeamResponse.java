@@ -1,27 +1,22 @@
 package com.alikgizatulin.teamapp.dto;
 
+import com.alikgizatulin.teamapp.entity.Team;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.time.Instant;
 import java.util.UUID;
 
-@Getter
-@Setter
-@Builder
+
+
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class TeamResponse {
+public record TeamResponse(UUID id, String name, String ownerId, long memberCount) {
+    public static TeamResponse fromTeam(Team team) {
+        return new TeamResponse(
+                team.getId(),
+                team.getName(),
+                team.getOwnerId(),
+                team.getMemberCount()
+        );
+    }
 
-    private UUID id;
-
-    private String name;
-
-    private String ownerId;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
 }

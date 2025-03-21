@@ -1,23 +1,21 @@
 package com.alikgizatulin.teamapp.controller;
 
-import com.alikgizatulin.teamapp.dto.CreateTeamWithSettingsRequest;
+import com.alikgizatulin.teamapp.dto.CreateTeamRequest;
 import com.alikgizatulin.teamapp.dto.TeamResponse;
-import com.alikgizatulin.teamapp.dto.TeamWithSettingsResponse;
-import com.alikgizatulin.teamapp.entity.Team;
-import com.alikgizatulin.teamapp.entity.TeamSettings;
-import com.alikgizatulin.teamapp.factory.TeamResponseFactory;
-import com.alikgizatulin.teamapp.factory.TeamWithSettingsResponseFactory;
+import com.alikgizatulin.teamapp.dto.UpdateTeamRequest;
 import com.alikgizatulin.teamapp.service.TeamService;
-import com.alikgizatulin.teamapp.service.TeamSettingsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -27,50 +25,71 @@ import java.util.UUID;
 public class TeamController {
 
     private final TeamService teamService;
-    private final TeamSettingsService teamSettingsService;
-    private final TeamWithSettingsResponseFactory teamWithSettingsResponseFactory;
-    private final TeamResponseFactory teamResponseFactory;
 
-    private static final String GET_TEAM_WITH_SETTINGS = "/{teamId}";
-    private static final String GET_TEAM = "/{teamId}/summary";
+    @GetMapping
+    public ResponseEntity<PagedModel<TeamResponse>> getTeams(
+            @RequestParam(required = false,defaultValue = "") String name,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            Authentication authentication
+    ) {
+        String userId = authentication.getName();
+        Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.ASC,"name"));
+        var teams = this.teamService.getAll(userId,name,pageable).map(TeamResponse::fromTeam);
+        return ResponseEntity.ok(new PagedModel<>(teams));
+    }
 
-
-    @GetMapping(GET_TEAM)
+    @GetMapping("/{teamId}")
     public ResponseEntity<TeamResponse> getTeam(@PathVariable("teamId") UUID teamId) {
-        Team team = this.teamService.getTeamById(teamId);
-        return ResponseEntity.ok(this.teamResponseFactory.makeTeamResponse(team));
+        return ResponseEntity.ok(TeamResponse.fromTeam(this.teamService.getById(teamId)));
     }
 
-    @GetMapping(GET_TEAM_WITH_SETTINGS)
-    public ResponseEntity<TeamWithSettingsResponse> getTeamWithSettings(@PathVariable("teamId") UUID teamId) {
-        Team team = this.teamService.getTeamById(teamId);
-        TeamSettings settings = this.teamSettingsService.getById(teamId);
-        return ResponseEntity
-                .ok(this.teamWithSettingsResponseFactory.makeTeamWithSettingsResponse(team,settings));
-    }
-
-    @PostMapping()
-    public ResponseEntity<?> createTeam(@RequestBody @Valid CreateTeamWithSettingsRequest request,
-                                        UriComponentsBuilder uriComponentsBuilder,
-                                        Authentication authentication) {
-        Team team = Team.builder()
-                .name(request.name())
-                .ownerId(authentication.getName())
-                .build();
-        TeamSettings teamSettings = TeamSettings.builder()
-                .totalStorageLimit(request.totalStorageLimit())
-                .maxUsers(request.maxUsers())
-                .maxFileSize(request.maxFileSize())
-                .deleteFilesOnExit(request.deleteFilesOnExit())
-                .defaultRoleId(null)
-                .team(team)
-                .build();
-        Team createdTeam = this.teamService.createWithSettings(team,teamSettings);
-        var bodyResponse = this.teamWithSettingsResponseFactory.makeTeamWithSettingsResponse(team,teamSettings);
+    @PostMapping
+    public ResponseEntity<TeamResponse> createTeam(@RequestBody @Valid CreateTeamRequest request,
+                                                   UriComponentsBuilder uriComponentsBuilder,
+                                                   Authentication authentication) {
+        String ownerId = authentication.getName();
+        var bodyResponse = TeamResponse.fromTeam(this.teamService.create(ownerId, request));
         return ResponseEntity.created(uriComponentsBuilder
-                        .replacePath("api/v1/teams/{teamId}")
-                        .build(Map.of("teamId",createdTeam.getId()))
-                ).body(bodyResponse);
+                .path("api/v1/teams/{teamId}")
+                .buildAndExpand(bodyResponse.id())
+                .toUri()
+        ).body(bodyResponse);
+    }
+
+   /* @GetMapping("/{teamId}/details")
+    public ResponseEntity<DetailedTeamResponse> getDetailedTeam(@PathVariable("teamId") UUID teamId) {
+        return ResponseEntity.ok(DetailedTeamResponse.fromTeam(this.teamService.getById(teamId)));
+    }*/
+
+    @DeleteMapping("/{teamId}")
+    public ResponseEntity<Void> deleteTeam(@PathVariable("teamId") UUID teamId) {
+        this.teamService.deleteById(teamId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{teamId}")
+    public ResponseEntity<Void> updateTeam(@PathVariable("teamId") UUID teamId,
+                                                           @RequestBody @Valid UpdateTeamRequest request) {
+        this.teamService.update(teamId,request);
+        return ResponseEntity.noContent().build();
+    }
+
+    /*@PostMapping("/{teamId}/members")
+    public ResponseEntity<Void> addMember(@PathVariable UUID teamId,@PathVariable("userId") String userId) {
+        this.teamService.addMember(teamId,userId, TeamMemberStatus.SETTING_UP);
+        return ResponseEntity.noContent().build();
+    }*/
+
+    @DeleteMapping("/{teamId}/members/{memberId}")
+    public ResponseEntity<Void> deleteMember(@PathVariable("teamId") UUID teamId,@PathVariable("memberId") UUID memberId,
+                                             @RequestParam(value = "isHard") boolean isHard) {
+        if(isHard) {
+            this.teamService.hardDeleteMember(teamId,memberId);
+        } else {
+            this.teamService.softDeleteMember(teamId, memberId);
+        }
+        return ResponseEntity.noContent().build();
     }
 
 

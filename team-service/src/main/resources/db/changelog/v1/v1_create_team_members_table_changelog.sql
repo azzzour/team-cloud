@@ -1,18 +1,17 @@
 --liquibase formatted sql
---changeset author:Gizatulin Alik id:v1_9
+--changeset author:Gizatulin Alik id:v1_2
 --preconditions onFail:MARK_RAN
 -- precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'team_members';
 
 
 CREATE TABLE team_members (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
     team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-    user_id varchar(100) NOT NULL,
-    role_id UUID NOT NULL,
+    status VARCHAR(15) NOT NULL DEFAULT 'NO_STORAGE',
     joined_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    status VARCHAR(10) NOT NULL DEFAULT 'PENDING' CHECK(LENGTH(status) >= 3),
-    CONSTRAINT unique_team_member UNIQUE (team_id,user_id)
+    CONSTRAINT unique_team_member UNIQUE(user_id,team_id)
 );
 
 --rollback DROP TABLE team_members;

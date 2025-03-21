@@ -4,11 +4,5 @@
    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.26.xsd">
 
     <include file="v1/v1_create_teams_table_changelog.sql" relativeToChangelogFile="true"/>
-    <include file="v1/v1_create_roles_table_changelog.sql" relativeToChangelogFile="true"/>
-    <include file="v1/v1_create_role_settings_table_changelog.sql" relativeToChangelogFile="true"/>
-    <include file="v1/v1_create_role_limits_table_changelog.sql" relativeToChangelogFile="true"/>
-    <include file="v1/v1_create_role_relations_table_changelog.sql" relativeToChangelogFile="true"/>
-    <include file="v1/v1_create_teams_limits_table_changelog.sql" relativeToChangelogFile="true"/>
-    <include file="v1/v1_create_team_settings_table_changelog.sql" relativeToChangelogFile="true"/>
     <include file="v1/v1_create_team_members_table_changelog.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -2,7 +2,7 @@ package com.alikgizatulin.teamapp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
@@ -21,63 +21,70 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @ToString(exclude = "teamMembers")
-@EqualsAndHashCode(of = {"name", "ownerId"})
 public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NonNull
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     private String name;
 
-    @NonNull
+    @Builder.Default
+    @Column(nullable = false)
+    private int memberCount = 1;
+
     @Column(nullable = false)
     private String ownerId;
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TeamStatus status = TeamStatus.PENDING;
+
+    @Builder.Default
+    @BatchSize(size = 10)
     @OneToMany(mappedBy = "team",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.LAZY)
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.ALL},
+            orphanRemoval = true)
     private List<TeamMember> teamMembers = Collections.synchronizedList(new ArrayList<>());
 
-    @CreationTimestamp
+    @Builder.Default
     @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+    private Instant createdAt = Instant.now();
 
+    @Builder.Default
     @UpdateTimestamp
     @Column(nullable = false)
-    private Instant updatedAt;
+    private Instant updatedAt = Instant.now();
 
     public void addTeamMember(@NonNull TeamMember teamMember) {
-        if (this.teamMembers.contains(teamMember)) {
-            throw new IllegalArgumentException("The team with id: {%s} already contains this teamMember"
-                    .formatted(this.id));
-        }
-        if (teamMember.getTeam() != null) {
-            throw new IllegalArgumentException("TeamMember already has a team: {%s}".formatted(teamMember.getTeam()));
-        }
         this.teamMembers.add(teamMember);
         teamMember.setTeam(this);
     }
 
-   /* public void removeTeamMember(@NonNull TeamMember teamMember) {
-        if(teamMember.getTeam() == null) {
-            throw new IllegalArgumentException();
-        }
-        if(teamMember.getTeam() != this) {
-            throw new IllegalArgumentException();
-        }
-        if (!this.teamMembers.contains(teamMember)) {
-            throw new IllegalArgumentException("The team with id: {%s} does not contain this teamMember"
-                    .formatted(this.id));
-        }
-        teamMember.setStatus(TeamMember.MemberStatus.REMOVED);
-    }*/
+   public void removeTeamMember(@NonNull TeamMember teamMember) {
+       if (this.teamMembers.remove(teamMember)) {
+           teamMember.setTeam(null);
+       }
+    }
 
-    public List<TeamMember> getTeamMember() {
+    public List<TeamMember> getTeamMembers() {
         return Collections.unmodifiableList(this.teamMembers);
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Team team)) return false;
+        return this.getId() != null && this.getId().equals(team.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 
 }

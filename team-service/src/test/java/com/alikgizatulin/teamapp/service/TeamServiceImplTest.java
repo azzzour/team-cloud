@@ -1,5 +1,6 @@
 package com.alikgizatulin.teamapp.service;
 
+import com.alikgizatulin.teamapp.dto.CreateTeamRequest;
 import com.alikgizatulin.teamapp.entity.Team;
 import com.alikgizatulin.teamapp.exception.TeamNotFoundException;
 import com.alikgizatulin.teamapp.exception.TeamWithDuplicateNameException;
@@ -24,6 +25,8 @@ public class TeamServiceImplTest {
 
     private final UUID teamId = UUID.randomUUID();
 
+    private final String ownerId = UUID.randomUUID().toString();
+
     @Mock
     private TeamRepository teamRepository;
 
@@ -32,74 +35,76 @@ public class TeamServiceImplTest {
 
     @Test
     @DisplayName("Should return Team when it exists")
-    void getById_whenExists_returnTeamEntity() {
+    void getById_whenTeamExists_returnTeamEntity() {
         //given
-        when(this.teamRepository.findById(teamId))
-                .thenReturn(Optional.of(TeamUtils.getTestTeamPersisted(teamId)));
+        when(this.teamRepository.findById(this.teamId))
+                .thenReturn(Optional.of(TeamUtils.getTestTeamPersisted(this.teamId,this.ownerId)));
 
         //when
-        Team team = this.teamService.getTeamById(teamId);
+        Team team = this.teamService.getById(this.teamId);
 
         //then
         assertNotNull(team);
-        assertEquals(team.getId(), teamId);
+        assertEquals(team.getId(), this.teamId);
 
-        verify(this.teamRepository).findById(teamId);
+        verify(this.teamRepository).findById(this.teamId);
     }
 
     @Test
     @DisplayName("Should throw TeamNotFoundException when team does not exist")
-    void getById_whenNotExists_throwTeamNotFoundException() {
+    void getById_whenTeamNotExists_throwTeamNotFoundException() {
         //given
-        when(this.teamRepository.findById(teamId))
+        when(this.teamRepository.findById(this.teamId))
                 .thenReturn(Optional.empty());
 
         //when & then
         assertThrows(
                 TeamNotFoundException.class, () ->
-                        this.teamService.getTeamById(teamId)
+                        this.teamService.getById(this.teamId)
         );
 
-        verify(this.teamRepository).findById(teamId);
+        verify(this.teamRepository).findById(this.teamId);
     }
 
     @Test
     @DisplayName("Should create and return a saved Team when it does not exist")
-    void create_whenNotExists_returnSavedTeam() {
+    void create_whenTeamNotExists_returnSavedTeam() {
         //given
-        Team teamToSave = TeamUtils.getTestTeamTransient();
+        Team teamToSave = TeamUtils.getTestTeamTransient(this.ownerId);
+        var request = new CreateTeamRequest(teamToSave.getName(),
+                1000000000L,10000000L);
         when(this.teamRepository.existsByOwnerIdAndName(teamToSave.getOwnerId(),teamToSave.getName()))
                 .thenReturn(Boolean.FALSE);
-        when(this.teamRepository.saveAndFlush(teamToSave))
-                .thenReturn(TeamUtils.getTestTeamPersisted(teamId));
-
+        when(this.teamRepository.save(any()))
+                .thenReturn(TeamUtils.getTestTeamPersisted(this.teamId,this.ownerId));
         //when
-        Team savedTeam = this.teamService.create(teamToSave);
-
+        Team savedTeam = this.teamService.create(this.ownerId,request);
         //then
         assertNotNull(savedTeam);
-        assertEquals(savedTeam.getId(),teamId);
+        assertEquals(savedTeam.getId(),this.teamId);
         assertEquals(savedTeam.getName(),teamToSave.getName());
-        assertEquals(savedTeam.getOwnerId(),teamToSave.getOwnerId());
-        verify(this.teamRepository,times(1)).saveAndFlush(teamToSave);
+        assertEquals(savedTeam.getOwnerId(),this.ownerId);
+        verify(this.teamRepository,times(1)).save(any());
         verify(this.teamRepository,times(1))
                 .existsByOwnerIdAndName(teamToSave.getOwnerId(),teamToSave.getName());
     }
 
     @Test
     @DisplayName("Should throw TeamWithDuplicateNameException when trying to create a team with a duplicate name")
-    void create_whenExists_throwTeamWithDuplicateNameException() {
+    void create_whenTeamAlreadyExists_throwTeamWithDuplicateNameException() {
         //given
-        Team teamToSave = TeamUtils.getTestTeamTransient();
+        Team teamToSave = TeamUtils.getTestTeamTransient(this.ownerId);
+        var request = new CreateTeamRequest(teamToSave.getName(),
+                1000000000L,10000000L);
         when(this.teamRepository.existsByOwnerIdAndName(teamToSave.getOwnerId(),teamToSave.getName()))
                 .thenReturn(Boolean.TRUE);
 
         //when & then
         assertThrows(
                 TeamWithDuplicateNameException.class, () ->
-                        this.teamService.create(teamToSave)
+                        this.teamService.create(this.ownerId,request)
         );
-        verify(this.teamRepository,never()).saveAndFlush(teamToSave);
+        verify(this.teamRepository,never()).save(teamToSave);
         verify(this.teamRepository,times(1))
                 .existsByOwnerIdAndName(teamToSave.getOwnerId(),teamToSave.getName());
     }
