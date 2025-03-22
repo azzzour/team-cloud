@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -39,6 +40,7 @@ public class TeamController {
         return ResponseEntity.ok(new PagedModel<>(teams));
     }
 
+    @PreAuthorize("@teamSecurity.isMember(#teamId, authentication.name)")
     @GetMapping("/{teamId}")
     public ResponseEntity<TeamResponse> getTeam(@PathVariable("teamId") UUID teamId) {
         return ResponseEntity.ok(TeamResponse.fromTeam(this.teamService.getById(teamId)));
@@ -62,12 +64,14 @@ public class TeamController {
         return ResponseEntity.ok(DetailedTeamResponse.fromTeam(this.teamService.getById(teamId)));
     }*/
 
+    @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name)")
     @DeleteMapping("/{teamId}")
     public ResponseEntity<Void> deleteTeam(@PathVariable("teamId") UUID teamId) {
         this.teamService.deleteById(teamId);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name)")
     @PatchMapping("/{teamId}")
     public ResponseEntity<Void> updateTeam(@PathVariable("teamId") UUID teamId,
                                                            @RequestBody @Valid UpdateTeamRequest request) {
@@ -81,8 +85,10 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }*/
 
+    @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name)")
     @DeleteMapping("/{teamId}/members/{memberId}")
-    public ResponseEntity<Void> deleteMember(@PathVariable("teamId") UUID teamId,@PathVariable("memberId") UUID memberId,
+    public ResponseEntity<Void> deleteMember(@PathVariable("teamId") UUID teamId,
+                                             @PathVariable("memberId") UUID memberId,
                                              @RequestParam(value = "isHard") boolean isHard) {
         if(isHard) {
             this.teamService.hardDeleteMember(teamId,memberId);

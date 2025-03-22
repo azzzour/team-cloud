@@ -21,10 +21,14 @@ public class SecurityConfig {
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oAuth2ResourceServe ->
                         oAuth2ResourceServe.jwt(jwtConfigurer ->
-                                jwtConfigurer.jwtAuthenticationConverter(new KeycloakJwtAuthenticationConverter())))
+                                jwtConfigurer.jwtAuthenticationConverter(new KeycloakJwtAuthenticationConverter()))
+                )
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
+
 }
+
+

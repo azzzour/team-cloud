@@ -7,6 +7,7 @@ import com.alikgizatulin.commonlibrary.exception.dto.ValidationErrorDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,14 +16,23 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
 
-import static com.alikgizatulin.commonlibrary.exception.MessageCode.INVALID_REQUEST_ERROR;
-import static com.alikgizatulin.commonlibrary.exception.MessageCode.UNKNOWN_ERROR;
+import static com.alikgizatulin.commonlibrary.exception.MessageCode.*;
 
 @RestControllerAdvice()
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
     private final HttpRequestExceptionHandler httpRequestExceptionHandler;
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDto> handleAccessDeniedException(AccessDeniedException ex,
+                                                                          WebRequest request) {
+        HttpRequestException newEx = new HttpRequestException(
+                HttpStatus.FORBIDDEN,
+                ACCESS_DENIED_ERROR,
+                ex);
+        return this.httpRequestExceptionHandler.handleException(newEx, request);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDto> handleException(WebRequest request, Exception ex) {
@@ -45,9 +55,10 @@ public class GlobalExceptionHandler {
         return this.httpRequestExceptionHandler.handleException(ex, request);
     }
 
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDto> handleValidateException(MethodArgumentNotValidException ex,
-                                                                          WebRequest request) {
+                                                            WebRequest request) {
         return this.httpRequestExceptionHandler.handleException(this.toDetailedHttpException(ex), request);
     }
 
@@ -56,7 +67,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 INVALID_REQUEST_ERROR,
                 this.extractFieldValidationErrors(ex)
-                );
+        );
     }
 
     private List<ValidationErrorDto> extractFieldValidationErrors(MethodArgumentNotValidException ex) {

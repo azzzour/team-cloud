@@ -37,6 +37,7 @@ public class TeamServiceImpl implements TeamService {
         return this.teamRepository.findAllUserTeams(userId, name, pageable);
     }
 
+
     @Override
     @Transactional
     public Team getById(UUID id) {
