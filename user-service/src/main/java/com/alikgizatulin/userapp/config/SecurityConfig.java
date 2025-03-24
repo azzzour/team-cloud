@@ -16,8 +16,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("api/v1/users/**").authenticated()
-                        .requestMatchers("api/v1/internal/users/**").hasAuthority("SCOPE_view_users")
+                        .requestMatchers("/api/v1/users/**").authenticated()
+                        .requestMatchers("/api/v1/internal/users/**").hasAuthority("SCOPE_view_users")
                         .anyRequest().permitAll())
                 .oauth2ResourceServer(oAuth2ResourceServe ->
                         oAuth2ResourceServe.jwt(jwtConfigurer ->

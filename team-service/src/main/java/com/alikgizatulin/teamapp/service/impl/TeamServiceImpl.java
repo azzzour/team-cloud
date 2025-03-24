@@ -1,6 +1,7 @@
 package com.alikgizatulin.teamapp.service.impl;
 
 import com.alikgizatulin.teamapp.dto.CreateTeamRequest;
+import com.alikgizatulin.teamapp.dto.TeamResponse;
 import com.alikgizatulin.teamapp.dto.UpdateTeamRequest;
 import com.alikgizatulin.teamapp.entity.Team;
 import com.alikgizatulin.teamapp.entity.TeamMember;
@@ -33,22 +34,24 @@ public class TeamServiceImpl implements TeamService {
     private final TeamMemberRepository teamMemberRepository;
 
     @Override
-    public Page<Team> getUserTeams(String userId, String name, Pageable pageable) {
-        return this.teamRepository.findAllUserTeams(userId, name, pageable);
+    public Page<TeamResponse> getUserTeams(String userId, String name, Pageable pageable) {
+        Page<Team> teams = this.teamRepository.findAllUserTeams(userId, name, pageable);
+        return teams.map(TeamResponse::fromTeam);
     }
 
 
     @Override
     @Transactional
-    public Team getById(UUID id) {
-        return this.teamRepository.findById(id)
+    public TeamResponse getById(UUID id) {
+        Team team = this.teamRepository.findById(id)
                 .orElseThrow(() -> new TeamNotFoundException(id));
+        return TeamResponse.fromTeam(team);
     }
 
 
     @Transactional
     @Override
-    public Team create(String ownerId, CreateTeamRequest request) {
+    public TeamResponse create(String ownerId, CreateTeamRequest request) {
 
         if (this.teamRepository.existsByOwnerIdAndName(ownerId, request.name())) {
             throw new TeamWithDuplicateNameException(ownerId, request.name());
@@ -67,7 +70,7 @@ public class TeamServiceImpl implements TeamService {
         team.addTeamMember(teamMember);
         team = this.teamRepository.save(team);
         log.debug("Created new team: name={}, userId={}", request.name(), ownerId);
-        return team;
+        return TeamResponse.fromTeam(team);
     }
 
     @Transactional

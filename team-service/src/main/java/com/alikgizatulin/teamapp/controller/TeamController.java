@@ -37,14 +37,16 @@ public class TeamController {
     ) {
         String userId = authentication.getName();
         Pageable pageRequest = PageRequest.of(page,size, Sort.by(Sort.Direction.ASC,"name"));
-        var teams = this.teamService.getUserTeams(userId,name,pageRequest).map(TeamSummaryResponse::fromTeam);
+        var teams = this.teamService.getUserTeams(userId,name,pageRequest)
+                .map(TeamSummaryResponse::fromTeamResponse);
         return ResponseEntity.ok(new PagedModel<>(teams));
     }
 
     @PreAuthorize("@teamSecurity.isMember(#teamId, authentication.name)")
     @GetMapping("/{teamId}")
-    public ResponseEntity<TeamResponse> getTeam(@PathVariable("teamId") UUID teamId) {
-        return ResponseEntity.ok(TeamResponse.fromTeam(this.teamService.getById(teamId)));
+    public ResponseEntity<TeamSummaryResponse> getTeam(@PathVariable("teamId") UUID teamId) {
+        var team = this.teamService.getById(teamId);
+        return ResponseEntity.ok(TeamSummaryResponse.fromTeamResponse(team));
     }
 
     @PostMapping
@@ -52,7 +54,7 @@ public class TeamController {
                                                    UriComponentsBuilder uriComponentsBuilder,
                                                    Authentication authentication) {
         String ownerId = authentication.getName();
-        var bodyResponse = TeamResponse.fromTeam(this.teamService.create(ownerId, request));
+        var bodyResponse = this.teamService.create(ownerId, request);
         return ResponseEntity.created(uriComponentsBuilder
                 .path("api/v1/teams/{teamId}")
                 .buildAndExpand(bodyResponse.id())
@@ -60,10 +62,11 @@ public class TeamController {
         ).body(bodyResponse);
     }
 
-   /* @GetMapping("/{teamId}/details")
-    public ResponseEntity<DetailedTeamResponse> getDetailedTeam(@PathVariable("teamId") UUID teamId) {
-        return ResponseEntity.ok(DetailedTeamResponse.fromTeam(this.teamService.getById(teamId)));
-    }*/
+    @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name)")
+    @GetMapping("/{teamId}/details")
+    public ResponseEntity<TeamResponse> getDetailedTeam(@PathVariable("teamId") UUID teamId) {
+        return ResponseEntity.ok(this.teamService.getById(teamId));
+    }
 
     @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name)")
     @DeleteMapping("/{teamId}")
@@ -80,11 +83,6 @@ public class TeamController {
         return ResponseEntity.noContent().build();
     }
 
-    /*@PostMapping("/{teamId}/members")
-    public ResponseEntity<Void> addMember(@PathVariable UUID teamId,@PathVariable("userId") String userId) {
-        this.teamService.addMember(teamId,userId, TeamMemberStatus.SETTING_UP);
-        return ResponseEntity.noContent().build();
-    }*/
 
 
 }

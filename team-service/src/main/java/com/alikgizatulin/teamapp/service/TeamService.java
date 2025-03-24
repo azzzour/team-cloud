@@ -1,8 +1,8 @@
 package com.alikgizatulin.teamapp.service;
 
 import com.alikgizatulin.teamapp.dto.CreateTeamRequest;
+import com.alikgizatulin.teamapp.dto.TeamResponse;
 import com.alikgizatulin.teamapp.dto.UpdateTeamRequest;
-import com.alikgizatulin.teamapp.entity.Team;
 import com.alikgizatulin.teamapp.entity.TeamMemberStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,11 +10,11 @@ import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 
 public interface TeamService {
-    Page<Team> getUserTeams(String userId, String name, Pageable pageable);
+    Page<TeamResponse> getUserTeams(String userId, String name, Pageable pageable);
 
-    Team getById(UUID id);
+    TeamResponse getById(UUID id);
 
-    Team create(String ownerId, CreateTeamRequest request);
+    TeamResponse create(String ownerId, CreateTeamRequest request);
 
     void addMember(UUID teamId, String userId, TeamMemberStatus status);
 

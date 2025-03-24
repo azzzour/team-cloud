@@ -35,7 +35,7 @@ public class TeamMemberController {
         return ResponseEntity.ok(new PagedModel<>(members));
     }
 
-    //info about me
+    //info about me in team
     @PreAuthorize("@teamSecurity.isMember(#teamId,authentication.name)")
     @GetMapping("/me")
     public ResponseEntity<TeamMemberResponse> getMyTeamInfo(@PathVariable("teamId") UUID teamId,
@@ -69,4 +69,11 @@ public class TeamMemberController {
         }
         return ResponseEntity.noContent().build();
     }
+
+    /* @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name)")
+    @PostMapping
+    public ResponseEntity<Void> addMember(@PathVariable UUID teamId,@PathVariable("userId") String userId) {
+        this.teamService.addMember(teamId,userId, TeamMemberStatus.NO_STORAGE);
+        return ResponseEntity.noContent().build();
+    }*/
 }
