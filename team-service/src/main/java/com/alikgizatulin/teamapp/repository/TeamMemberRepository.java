@@ -2,6 +2,8 @@ package com.alikgizatulin.teamapp.repository;
 
 import com.alikgizatulin.teamapp.entity.Team;
 import com.alikgizatulin.teamapp.entity.TeamMember;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +14,10 @@ import java.util.UUID;
 
 @Repository
 public interface TeamMemberRepository extends JpaRepository<TeamMember, UUID> {
+
+    Page<TeamMember> findAllByTeam(Team team, Pageable pageable);
+
+    Optional<TeamMember> findByUserIdAndTeam(String userId, Team team);
 
     boolean existsByUserIdAndTeam(String userId, Team team);
 

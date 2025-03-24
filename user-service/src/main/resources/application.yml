@@ -14,3 +14,8 @@ keycloak:
   realm: team_cloud
   id: user-manager
   secret: lxvWH0hFhQSGVF9BdUqVsPkDJgFw3UlQ
+
+logging:
+  level:
+    com.alikgizatulin.commonlibrary: DEBUG
+    com.alikgizatulin.userapp: DEBUG

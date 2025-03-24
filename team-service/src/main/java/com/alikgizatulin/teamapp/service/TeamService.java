@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 
 public interface TeamService {
-    Page<Team> getAll(String userId, String name, Pageable pageable);
+    Page<Team> getUserTeams(String userId, String name, Pageable pageable);
 
     Team getById(UUID id);
 

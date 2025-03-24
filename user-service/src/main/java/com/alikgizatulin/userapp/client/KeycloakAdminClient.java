@@ -1,11 +1,13 @@
 package com.alikgizatulin.userapp.client;
 
-import com.alikgizatulin.userapp.dto.UserProfileDto;
+import com.alikgizatulin.userapp.model.UserModel;
 
 import java.util.List;
 
 public interface KeycloakAdminClient {
-    List<UserProfileDto> getUsers();
+    List<UserModel> getAll();
 
-    UserProfileDto getUserById(String id);
+    List<UserModel> getByIds(List<String> ids);
+
+    UserModel getById(String id);
 }

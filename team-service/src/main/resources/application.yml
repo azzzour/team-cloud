@@ -21,6 +21,17 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9090/realms/team_cloud
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9090/realms/team_cloud
+        registration:
+          keycloak:
+            authorization-grant-type: client_credentials
+            client-id: team_service
+            client-secret: AVrkD1vu6H8ketEfXpKOvPEiOoB36piS
+            scope:
+              - view_users
 logging:
   level:
     org.springframework.orm.jpa: TRACE

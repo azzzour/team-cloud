@@ -17,7 +17,8 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("api/v1/users/**").authenticated()
-                        .anyRequest().denyAll())
+                        .requestMatchers("api/v1/internal/users/**").hasAuthority("SCOPE_view_users")
+                        .anyRequest().permitAll())
                 .oauth2ResourceServer(oAuth2ResourceServe ->
                         oAuth2ResourceServe.jwt(jwtConfigurer ->
                                 jwtConfigurer.jwtAuthenticationConverter(new KeycloakJwtAuthenticationConverter())))

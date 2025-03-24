@@ -2,6 +2,7 @@ package com.alikgizatulin.teamapp.controller;
 
 import com.alikgizatulin.teamapp.dto.CreateTeamRequest;
 import com.alikgizatulin.teamapp.dto.TeamResponse;
+import com.alikgizatulin.teamapp.dto.TeamSummaryResponse;
 import com.alikgizatulin.teamapp.dto.UpdateTeamRequest;
 import com.alikgizatulin.teamapp.service.TeamService;
 import jakarta.validation.Valid;
@@ -28,15 +29,15 @@ public class TeamController {
     private final TeamService teamService;
 
     @GetMapping
-    public ResponseEntity<PagedModel<TeamResponse>> getTeams(
+    public ResponseEntity<PagedModel<TeamSummaryResponse>> getTeams(
             @RequestParam(required = false,defaultValue = "") String name,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size,
             Authentication authentication
     ) {
         String userId = authentication.getName();
-        Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Direction.ASC,"name"));
-        var teams = this.teamService.getAll(userId,name,pageable).map(TeamResponse::fromTeam);
+        Pageable pageRequest = PageRequest.of(page,size, Sort.by(Sort.Direction.ASC,"name"));
+        var teams = this.teamService.getUserTeams(userId,name,pageRequest).map(TeamSummaryResponse::fromTeam);
         return ResponseEntity.ok(new PagedModel<>(teams));
     }
 
@@ -84,19 +85,6 @@ public class TeamController {
         this.teamService.addMember(teamId,userId, TeamMemberStatus.SETTING_UP);
         return ResponseEntity.noContent().build();
     }*/
-
-    @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name)")
-    @DeleteMapping("/{teamId}/members/{memberId}")
-    public ResponseEntity<Void> deleteMember(@PathVariable("teamId") UUID teamId,
-                                             @PathVariable("memberId") UUID memberId,
-                                             @RequestParam(value = "isHard") boolean isHard) {
-        if(isHard) {
-            this.teamService.hardDeleteMember(teamId,memberId);
-        } else {
-            this.teamService.softDeleteMember(teamId, memberId);
-        }
-        return ResponseEntity.noContent().build();
-    }
 
 
 }

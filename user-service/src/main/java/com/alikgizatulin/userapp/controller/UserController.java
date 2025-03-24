@@ -1,6 +1,7 @@
 package com.alikgizatulin.userapp.controller;
 
 import com.alikgizatulin.userapp.client.KeycloakAdminClient;
+import com.alikgizatulin.userapp.dto.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,11 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1/users")
 public class UserController {
 
-    private static final String GET_PROFILE = "/profile";
+    private static final String GET_PROFILE = "/me";
     private final KeycloakAdminClient keycloakAdminClient;
 
     @GetMapping(GET_PROFILE)
-    public ResponseEntity<?> getUserDetails(Authentication authentication) {
-        return ResponseEntity.ok().body(this.keycloakAdminClient.getUserById(authentication.getName()));
+    public ResponseEntity<UserProfileResponse> getMe(Authentication authentication) {
+        String userId = authentication.getName();
+        UserProfileResponse profile = UserProfileResponse
+                .fromUserModel(this.keycloakAdminClient.getById(userId));
+        return ResponseEntity.ok().body(profile);
     }
 }

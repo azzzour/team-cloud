@@ -33,7 +33,7 @@ public class TeamServiceImpl implements TeamService {
     private final TeamMemberRepository teamMemberRepository;
 
     @Override
-    public Page<Team> getAll(String userId, String name, Pageable pageable) {
+    public Page<Team> getUserTeams(String userId, String name, Pageable pageable) {
         return this.teamRepository.findAllUserTeams(userId, name, pageable);
     }
 
