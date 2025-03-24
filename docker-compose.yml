@@ -32,7 +32,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.7
-    container_name: keycloak_idp
+    container_name: keycloak
     environment:
       KC_DB: postgres
       KC_DB_URL_HOST: postgres
@@ -40,7 +40,6 @@ services:
       KC_DB_SCHEMA: keycloak_schema
       KC_DB_USERNAME: alik
       KC_DB_PASSWORD: alik
-
       KC_HOSTNAME: localhost
       KC_HOSTNAME_PORT: 8080
 
@@ -60,6 +59,24 @@ services:
     command: start-dev --import-realm
     restart: unless-stopped
 
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "adminpassword78"
+    volumes:
+      - minio_data:/data
+    depends_on:
+      - postgres
+    ports:
+      - "9000:9000"
+      - "9091:9091"
+    networks:
+      - team_cloud_net
+    restart: unless-stopped
+    command: server --console-address ":9091" /data
+
 
 networks:
   team_cloud_net:
@@ -68,3 +85,4 @@ networks:
 volumes:
   postgres_data:
   pgadmin_data:
+  minio_data:

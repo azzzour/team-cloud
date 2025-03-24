@@ -1,0 +1,26 @@
+server:
+  port: 8082
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/storage_db?currentSchema=storage_schema
+    username: alik
+    password: alik
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
+    default-schema: storage_schema
+  jpa:
+    show-sql: true
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    open-in-view: false
+
+
+logging:
+  level:
+    org.springframework.orm.jpa: TRACE
+    org.springframework.transaction.interceptor: TRACE
+    com.alikgizatulin.commonlibrary: DEBUG
+    com.alikgizatulin.teamapp: DEBUG

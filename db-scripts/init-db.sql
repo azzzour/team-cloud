@@ -1,2 +1,4 @@
-CREATE DATABASE team_db;
 CREATE DATABASE keycloak_db;
+CREATE DATABASE team_db;
+CREATE DATABASE storage_db;
+

@@ -3,4 +3,5 @@ include 'user-service'
 include 'gateway-service'
 include 'common-library'
 include 'team-service'
+include 'storage-service'
 
