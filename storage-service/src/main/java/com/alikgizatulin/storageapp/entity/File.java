@@ -1,4 +1,4 @@
-package com.alikgizatulin.teamapp.entity;
+package com.alikgizatulin.storageapp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,36 +8,39 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "team_members", uniqueConstraints = {
-        @UniqueConstraint(name = "unique_team_member", columnNames = {"user_id", "team_id"})
+@Table(name = "files",uniqueConstraints = {
+        @UniqueConstraint(name = "unique_file_name", columnNames = {"member_id", "folder_id","name"})
 })
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "team")
-public class TeamMember{
+@ToString(exclude = "folder")
+public class File {
 
-    //equals and hash code
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(nullable = false)
-    private String userId;
+    private UUID member_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Team team;
+    private Folder folder;
 
-    @Builder.Default
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TeamMemberStatus status = TeamMemberStatus.NO_STORAGE;
+    private String name;
+
+    @Column(nullable = false)
+    private long size;
+
+    @Column(nullable = false)
+    private String contentType;
 
     @Builder.Default
-    @Column(nullable = false,updatable = false)
-    private Instant joinedAt = Instant.now();
+    @Column(nullable = false)
+    private Instant createdAt = Instant.now();
 
     @UpdateTimestamp
     @Column(nullable = false)
@@ -46,13 +49,12 @@ public class TeamMember{
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (!(object instanceof TeamMember teamMember)) return false;
-        return this.getId() != null && this.getId().equals(teamMember.getId());
+        if (!(object instanceof File file)) return false;
+        return this.getId() != null && this.getId().equals(file.getId());
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode();
     }
-
 }

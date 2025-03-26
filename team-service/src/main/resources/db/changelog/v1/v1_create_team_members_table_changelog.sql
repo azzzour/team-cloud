@@ -8,7 +8,8 @@ CREATE TABLE team_members (
     id UUID PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-    status VARCHAR(15) NOT NULL DEFAULT 'NO_STORAGE',
+    status VARCHAR(15) NOT NULL DEFAULT 'NO_STORAGE'
+        CHECK ( status in ('NO_STORAGE','HAS_STORAGE','SETTING_UP','REMOVED') ),
     joined_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT unique_team_member UNIQUE(user_id,team_id)

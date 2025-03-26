@@ -24,7 +24,7 @@ import java.util.UUID;
 public class Team {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(nullable = false)
@@ -54,10 +54,9 @@ public class Team {
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
-    @Builder.Default
     @UpdateTimestamp
     @Column(nullable = false)
-    private Instant updatedAt = Instant.now();
+    private Instant updatedAt;
 
     public void addTeamMember(@NonNull TeamMember teamMember) {
         this.teamMembers.add(teamMember);

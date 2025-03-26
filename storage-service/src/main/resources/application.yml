@@ -16,7 +16,15 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     open-in-view: false
+  servlet:
+    multipart:
+      max-request-size: 1GB
+      max-file-size: 1GB
 
+minio:
+  endpoint: http://localhost:9000
+  access_key: admin
+  secret_key: adminpassword78
 
 logging:
   level:

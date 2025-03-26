@@ -3,5 +3,9 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.26.xsd">
 
-
+    <include file="v1/v1_create_teams_storage_table_changelog.sql" relativeToChangelogFile="true"/>
+    <include file="v1/v1_create_members_storage_table_changelog.sql" relativeToChangelogFile="true"/>
+    <include file="v1/v1_create_folders_table_changelog.sql" relativeToChangelogFile="true"/>
+    <include file="v1/v1_create_files_table_changelog.sql" relativeToChangelogFile="true"/>
+    <include file="v1/v1_create_shared_resources_table_changelog.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

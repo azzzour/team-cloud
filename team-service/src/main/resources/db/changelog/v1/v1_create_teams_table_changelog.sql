@@ -9,7 +9,8 @@ CREATE TABLE teams (
     name VARCHAR(15) NOT NULL CHECK(LENGTH(name) >= 5),
     owner_id VARCHAR(255) NOT NULL,
     member_count INT NOT NULL DEFAULT 1 CHECK( member_count <= 100),
-    status VARCHAR(10) NOT NULL DEFAULT 'PENDING',
+    status VARCHAR(10) NOT NULL DEFAULT 'PENDING'
+                   CHECK (status in ('PENDING', 'ACTIVE','ERROR')),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT unique_team_name UNIQUE(owner_id,name)
