@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.domain.Persistable;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Builder
 @ToString(exclude = "membersStorage")
 @EqualsAndHashCode(of = "teamId")
-public class TeamStorage {
+public class TeamStorage implements Persistable<UUID> {
 
     @Id
     private UUID teamId;
@@ -61,4 +62,13 @@ public class TeamStorage {
         }
     }
 
+    @Override
+    public UUID getId() {
+        return this.teamId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return true;
+    }
 }

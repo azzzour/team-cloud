@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "files",uniqueConstraints = {
-        @UniqueConstraint(name = "unique_file_name", columnNames = {"member_id", "folder_id","name"})
+        @UniqueConstraint(name = "unique_file_name", columnNames = {"member_storage_id", "folder_id","name"})
 })
 @Getter
 @Setter
@@ -24,7 +24,7 @@ public class File {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID member_id;
+    private UUID memberStorageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Folder folder;

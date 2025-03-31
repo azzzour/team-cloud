@@ -22,6 +22,7 @@ public class MemberStorage {
     private UUID memberId;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_storage_id")
     private TeamStorage teamStorage;
 
     @Builder.Default

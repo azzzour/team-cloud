@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "folders",uniqueConstraints = {
-        @UniqueConstraint(name = "unique_folder_name", columnNames = {"member_id", "parent_folder_id","name"})
+        @UniqueConstraint(name = "unique_folder_name", columnNames = {"member_storage_id", "parent_folder_id","name"})
 })
 @Getter
 @Setter
@@ -28,25 +28,20 @@ public class Folder {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID member_id;
+    private UUID memberStorageId;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Folder parentFolder;
 
     @Builder.Default
     @BatchSize(size = 10)
-    @OneToMany(mappedBy = "parentFolder",
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.ALL},
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "parentFolder")
     private List<Folder> childFolders = Collections.synchronizedList(new ArrayList<>());
 
     @Builder.Default
     @BatchSize(size = 10)
-    @OneToMany(mappedBy = "folder",
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.ALL},
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "folder")
     private List<File> childFiles = Collections.synchronizedList(new ArrayList<>());
 
     @Column(nullable = false)
