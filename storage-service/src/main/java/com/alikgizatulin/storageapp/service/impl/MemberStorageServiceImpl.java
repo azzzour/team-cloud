@@ -28,8 +28,15 @@ public class MemberStorageServiceImpl implements MemberStorageService {
 
     @Override
     public MemberStorageResponse getById(UUID id) {
-        return MemberStorageResponse.fromMemberStorage(this.memberStorageRepository.findById(id)
-                .orElseThrow(() -> new MemberStorageNotFoundException(id)));
+        return this.memberStorageRepository.findById(id)
+                .map(memberStorage -> new MemberStorageResponse(
+                        memberStorage.getMemberId(),
+                        memberStorage.getTeamStorage().getTeamId(),
+                        memberStorage.getTotalSize(),
+                        memberStorage.getUsedSize(),
+                        memberStorage.getCreatedAt(),
+                        memberStorage.getUpdatedAt()
+                )).orElseThrow(() -> new MemberStorageNotFoundException(id));
     }
 
     @Transactional
@@ -37,12 +44,12 @@ public class MemberStorageServiceImpl implements MemberStorageService {
     public void create(UUID memberId, UUID teamStorageId, long totalSize) {
         TeamStorage teamStorage = this.teamStorageRepository.findById(teamStorageId)
                 .orElseThrow(() -> new TeamStorageNotFoundException(teamStorageId));
-        if(this.memberStorageRepository.existsById(memberId)){
+        if (this.memberStorageRepository.existsById(memberId)) {
             throw new DuplicateMemberStorageException(memberId);
         }
         long availableSize = teamStorage.getTotalSize() - teamStorage.getReservedSize();
-        if(totalSize > availableSize) {
-            throw new NotEnoughTeamStorageException(teamStorageId,memberId);
+        if (totalSize > availableSize) {
+            throw new NotEnoughTeamStorageException(teamStorageId, memberId);
         }
         teamStorage.setReservedSize(teamStorage.getReservedSize() + totalSize);
         MemberStorage memberStorage = MemberStorage.builder()
@@ -52,6 +59,6 @@ public class MemberStorageServiceImpl implements MemberStorageService {
                 .build();
         this.teamStorageRepository.save(teamStorage);
         this.memberStorageRepository.save(memberStorage);
-        log.debug("Created new member storage: memberId={}, teamStorageId={}",memberId,teamStorageId);
+        log.debug("Created new member storage: memberId={}, teamStorageId={}", memberId, teamStorageId);
     }
 }

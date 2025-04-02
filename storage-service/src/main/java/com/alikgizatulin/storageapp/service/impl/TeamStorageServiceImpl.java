@@ -23,8 +23,14 @@ public class TeamStorageServiceImpl implements TeamStorageService {
 
     @Override
     public TeamStorageResponse getById(UUID id) {
-        return TeamStorageResponse.fromTeamStorage(this.teamStorageRepository.findById(id)
-                .orElseThrow(() -> new TeamStorageNotFoundException(id)));
+        return this.teamStorageRepository.findById(id)
+                .map(teamStorage -> new TeamStorageResponse(
+                        teamStorage.getTeamId(),
+                        teamStorage.getTotalSize(),
+                        teamStorage.getReservedSize(),
+                        teamStorage.getCreatedAt(),
+                        teamStorage.getUpdatedAt()
+                )).orElseThrow(() -> new TeamStorageNotFoundException(id));
     }
 
     @Transactional

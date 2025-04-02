@@ -1,6 +1,7 @@
 package com.alikgizatulin.storageapp.service.impl;
 
 import com.alikgizatulin.storageapp.dto.CreateFileRequest;
+import com.alikgizatulin.storageapp.dto.MemberStorageResponse;
 import com.alikgizatulin.storageapp.exception.StorageException;
 import com.alikgizatulin.storageapp.repository.FileRepository;
 import com.alikgizatulin.storageapp.repository.FolderRepository;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -58,19 +60,25 @@ public class MinioStorageService implements StorageService {
 
     @Transactional
     @Override
-    public void save(MultipartFile file, UUID teamId, UUID memberId, UUID parentFolderId) {
-        this.fileService.create(new CreateFileRequest(
-                memberId,
-                parentFolderId,
+    public void save(MultipartFile file, UUID memberId, UUID parentFolderId) {
+        var createFileRequest = new CreateFileRequest(
                 file.getOriginalFilename(),
                 file.getSize(),
-                file.getContentType())
+                file.getContentType()
         );
+
+        if(Objects.isNull(parentFolderId)) {
+            this.fileService.createInRoot(memberId,createFileRequest);
+        } else {
+            this.fileService.createInFolder(parentFolderId,createFileRequest);
+        }
+
+        MemberStorageResponse memberStorage = this.memberStorageService.getById(memberId);
+        String bucket = memberStorage.teamStorageId().toString();
         String pathToSave = memberId + "/";
         if (parentFolderId != null) {
             pathToSave += this.folderRepository.getPath(parentFolderId) + "/";
         }
-        String bucket = teamId.toString();
         pathToSave += file.getOriginalFilename();
         try {
             minioClient.putObject(PutObjectArgs.builder()
@@ -91,15 +99,22 @@ public class MinioStorageService implements StorageService {
 
     @Override
     public void createFolder(UUID memberId, UUID parentFolderId, String name) {
-        this.folderService.create(memberId, parentFolderId, name);
+        if(Objects.isNull(parentFolderId)) {
+            this.folderService.createInRoot(memberId,name);
+        } else {
+            this.folderService.createInFolder(parentFolderId,name);
+        }
     }
 
     @Transactional
     @Override
-    public void deleteFolder(UUID teamId, UUID memberId, UUID folderId) {
-        String pathToDelete = memberId + "/" + this.folderRepository.getPath(folderId);
-        String bucket = teamId.toString();
+    public void deleteFolder(UUID folderId) {
+        var folder = this.folderService.getById(folderId);
+        String pathToDelete = this.folderRepository.getPath(folderId);
         this.folderService.deleteById(folderId);
+        var memberStorage = this.memberStorageService.getById(folder.memberStorageId());
+        pathToDelete =  memberStorage.memberId() + "/" + pathToDelete;
+        String bucket = memberStorage.teamStorageId().toString();
         try {
             Iterable<Result<Item>> objects = minioClient.listObjects(
                     ListObjectsArgs.builder()
@@ -135,10 +150,13 @@ public class MinioStorageService implements StorageService {
 
     @Transactional
     @Override
-    public void deleteFile(UUID teamId, UUID memberId, UUID fileId) {
-        String pathToDelete = memberId + "/" + this.fileRepository.getPath(fileId);
-        String bucket = teamId.toString();
+    public void deleteFile(UUID fileId) {
+        var file = this.fileService.getById(fileId);
+        String pathToDelete = this.fileRepository.getPath(fileId);
         this.fileService.deleteById(fileId);
+        var memberStorage = this.memberStorageService.getById(file.memberStorageId());
+        pathToDelete = memberStorage.memberId() + "/" + pathToDelete;
+        String bucket = memberStorage.teamStorageId().toString();
         try {
             this.minioClient.removeObject(
                     RemoveObjectArgs.builder()

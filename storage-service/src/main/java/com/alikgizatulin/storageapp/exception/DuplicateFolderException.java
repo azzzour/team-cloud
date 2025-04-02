@@ -14,4 +14,8 @@ public class DuplicateFolderException extends DuplicateException {
     public DuplicateFolderException(UUID memberStorageId, String name, UUID parentFolderId) {
         super(DUPLICATE_FOLDER, new Object[]{memberStorageId, name, parentFolderId});
     }
+
+    public DuplicateFolderException(UUID memberStorageId, String name) {
+        super(DUPLICATE_FOLDER, new Object[]{memberStorageId, name});
+    }
 }

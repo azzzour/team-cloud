@@ -10,12 +10,12 @@ public interface StorageService {
 
     void createMemberStorage(UUID teamStorageId, UUID memberId, long storageSize);
 
-    void save(MultipartFile file, UUID teamId, UUID memberId, UUID parentFolderId);
+    void save(MultipartFile file, UUID memberId, UUID parentFolderId);
 
     void createFolder(UUID memberId, UUID parentFolderId, String name);
 
-    void deleteFolder(UUID teamId, UUID memberId, UUID folderId);
+    void deleteFolder(UUID folderId);
 
-    void deleteFile(UUID teamId, UUID memberId, UUID fileId);
+    void deleteFile(UUID fileId);
 
 }

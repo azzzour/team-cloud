@@ -1,8 +1,10 @@
 package com.alikgizatulin.storageapp.service.impl;
 
+import com.alikgizatulin.storageapp.dto.FolderResponse;
 import com.alikgizatulin.storageapp.entity.Folder;
 import com.alikgizatulin.storageapp.entity.MemberStorage;
 import com.alikgizatulin.storageapp.exception.DuplicateFolderException;
+import com.alikgizatulin.storageapp.exception.FileNotFoundException;
 import com.alikgizatulin.storageapp.exception.FolderNotFoundException;
 import com.alikgizatulin.storageapp.exception.MemberStorageNotFoundException;
 import com.alikgizatulin.storageapp.repository.FolderRepository;
@@ -24,6 +26,20 @@ public class FolderServiceImpl implements FolderService {
     private final FolderRepository folderRepository;
 
     private final MemberStorageRepository memberStorageRepository;
+
+    @Override
+    public FolderResponse getById(UUID id) {
+        return this.folderRepository.findById(id)
+                .map(folder -> new FolderResponse(
+                        folder.getId(),
+                        folder.getMemberStorageId(),
+                        folder.getParentFolder() != null ? folder.getParentFolder().getId() : null,
+                        folder.getName(),
+                        folder.getSize(),
+                        folder.getCreatedAt(),
+                        folder.getUpdatedAt()
+                )).orElseThrow(() -> new FolderNotFoundException(id));
+    }
 
     @Transactional
     @Override
@@ -47,6 +63,43 @@ public class FolderServiceImpl implements FolderService {
                 .build();
         this.folderRepository.save(folder);
         log.debug("Created new folder: id={}, memberId={}", folder.getId(), memberStorageId);
+    }
+
+    @Transactional
+    @Override
+    public void createInFolder(UUID parentFolderId, String name) {
+        Folder parentFolder = this.folderRepository.findById(parentFolderId)
+                .orElseThrow(() -> new FileNotFoundException(parentFolderId));
+        UUID memberStorageId = parentFolder.getMemberStorageId();
+        if(this.folderRepository.existsByMemberStorageIdAndNameAndParentFolder(memberStorageId,name,parentFolder)) {
+            throw new DuplicateFolderException(memberStorageId,name,parentFolderId);
+        }
+        Folder folder = Folder.builder()
+                .memberStorageId(memberStorageId)
+                .parentFolder(parentFolder)
+                .name(name)
+                .build();
+        this.folderRepository.save(folder);
+        log.debug("Created new folder: id={}, memberId={},parentFolderId={}",
+                folder.getId(), memberStorageId,parentFolderId);
+    }
+
+    @Transactional
+    @Override
+    public void createInRoot(UUID memberStorageId, String name) {
+        if(this.folderRepository.existsByMemberStorageIdAndNameAndParentFolder(memberStorageId,name,null)) {
+            throw new DuplicateFolderException(memberStorageId,name);
+        }
+        if(!this.memberStorageRepository.existsById(memberStorageId)) {
+            throw new MemberStorageNotFoundException(memberStorageId);
+        }
+        Folder folder = Folder.builder()
+                .memberStorageId(memberStorageId)
+                .parentFolder(null)
+                .name(name)
+                .build();
+        this.folderRepository.save(folder);
+        log.debug("Created folder in root: id={}, memberId={}", folder.getId(), memberStorageId);
     }
 
     @Transactional
