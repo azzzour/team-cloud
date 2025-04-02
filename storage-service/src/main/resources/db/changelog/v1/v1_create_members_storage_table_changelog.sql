@@ -9,8 +9,8 @@ CREATE TABLE members_storage (
     team_storage_id UUID NOT NULL REFERENCES teams_storage(team_id) ON DELETE CASCADE ,
     total_size BIGINT NOT NULL DEFAULT 10000000000 CHECK(total_size BETWEEN 10000000 AND 1000000000000),
     used_size BIGINT NOT NULL DEFAULT 0 CHECK ( used_size BETWEEN 0 AND total_size),
-    is_locked boolean NOT NULL DEFAULT false,
-    updated_at TIMESTAMP NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 )
 
 --rollback DROP TABLE members_storage;

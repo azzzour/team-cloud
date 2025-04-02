@@ -10,8 +10,7 @@ CREATE TABLE shared_resources(
     resource_id UUID NOT NULL,
     shared_by UUID NOT NULL,
     shared_with UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT unique_shared_resource UNIQUE(resource_id,shared_by,shared_with)
  )
 

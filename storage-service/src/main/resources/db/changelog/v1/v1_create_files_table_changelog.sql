@@ -6,14 +6,14 @@
 
 CREATE TABLE files(
     id UUID PRIMARY KEY,
-    member_id UUID NOT NULL,
+    member_storage_id UUID NOT NULL REFERENCES members_storage(member_id) ON DELETE CASCADE,
     folder_id UUID REFERENCES folders(id) ON DELETE CASCADE,
-    name varchar(50) NOT NULL CHECK (LENGTH(name) BETWEEN 1 AND 50),
+    name varchar(255) NOT NULL CHECK (LENGTH(name) >= 1),
     size BIGINT NOT NULL CHECK (size >= 0),
     content_type varchar(50) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT unique_file_name UNIQUE(member_id,folder_id,name)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT unique_file_name UNIQUE(member_storage_id,folder_id,name)
 )
 
 --rollback DROP TABLE files;

@@ -82,7 +82,4 @@ public class TeamController {
         this.teamService.update(teamId,request);
         return ResponseEntity.noContent().build();
     }
-
-
-
 }

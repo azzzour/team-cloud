@@ -5,12 +5,13 @@
 
 CREATE TABLE folders(
     id UUID PRIMARY KEY,
-    member_id UUID NOT NULL,
+    member_storage_id UUID NOT NULL REFERENCES members_storage(member_id) ON DELETE CASCADE,
     parent_folder_id UUID REFERENCES folders(id) ON DELETE CASCADE,
-    name varchar(50) NOT NULL CHECK (LENGTH(name) BETWEEN 1 AND 50),
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT unique_folder_name UNIQUE(member_id,parent_folder_id,name)
+    name varchar(255) NOT NULL CHECK (LENGTH(name) >= 1),
+    size BIGINT NOT NULL DEFAULT 0 CHECK ( size >= 0 ),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT unique_folder_name UNIQUE(member_storage_id,parent_folder_id,name)
 )
 
 --rollback DROP TABLE folders;

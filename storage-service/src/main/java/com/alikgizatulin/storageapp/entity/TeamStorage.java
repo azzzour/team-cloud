@@ -21,7 +21,7 @@ import java.util.UUID;
 @Builder
 @ToString(exclude = "membersStorage")
 @EqualsAndHashCode(of = "teamId")
-public class TeamStorage implements Persistable<UUID> {
+public class TeamStorage implements Persistable<UUID>{
 
     @Id
     private UUID teamId;
@@ -40,7 +40,11 @@ public class TeamStorage implements Persistable<UUID> {
 
     @Builder.Default
     @Column(nullable = false)
-    private long maxFileSize = 1000000000L;
+    private long reservedSize = 0;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Instant createdAt = Instant.now();
 
     @UpdateTimestamp
     @Column(nullable = false)

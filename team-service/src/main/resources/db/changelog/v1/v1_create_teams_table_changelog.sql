@@ -11,8 +11,8 @@ CREATE TABLE teams (
     member_count INT NOT NULL DEFAULT 1 CHECK( member_count <= 100),
     status VARCHAR(10) NOT NULL DEFAULT 'PENDING'
                    CHECK (status in ('PENDING', 'ACTIVE','ERROR')),
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT unique_team_name UNIQUE(owner_id,name)
     );
 

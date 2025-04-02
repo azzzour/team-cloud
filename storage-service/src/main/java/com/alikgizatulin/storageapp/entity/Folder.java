@@ -49,6 +49,10 @@ public class Folder {
 
     @Builder.Default
     @Column(nullable = false)
+    private long size = 0;
+
+    @Builder.Default
+    @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
     @UpdateTimestamp

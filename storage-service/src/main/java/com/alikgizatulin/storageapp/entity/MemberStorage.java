@@ -3,6 +3,7 @@ package com.alikgizatulin.storageapp.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.domain.Persistable;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Builder
 @EqualsAndHashCode(of = "memberId")
 @ToString(exclude = "teamStorage")
-public class MemberStorage {
+public class MemberStorage implements Persistable<UUID> {
 
     @Id
     private UUID memberId;
@@ -35,9 +36,19 @@ public class MemberStorage {
 
     @Builder.Default
     @Column(nullable = false)
-    private boolean isLocked = false;
+    private Instant createdAt = Instant.now();
 
     @UpdateTimestamp
     @Column(nullable = false)
     private Instant updatedAt;
+
+    @Override
+    public UUID getId() {
+        return this.getId();
+    }
+
+    @Override
+    public boolean isNew() {
+        return true;
+    }
 }
