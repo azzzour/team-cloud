@@ -18,4 +18,6 @@ public interface StorageService {
 
     void deleteFile(UUID fileId);
 
+    FileStreamingResponseBody getFile(UUID fileId);
+
 }

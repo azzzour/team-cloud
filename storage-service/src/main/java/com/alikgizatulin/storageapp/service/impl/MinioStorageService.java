@@ -1,9 +1,7 @@
 package com.alikgizatulin.storageapp.service.impl;
 
 import com.alikgizatulin.storageapp.dto.CreateFileRequest;
-import com.alikgizatulin.storageapp.dto.MemberStorageResponse;
 import com.alikgizatulin.storageapp.exception.StorageException;
-import com.alikgizatulin.storageapp.repository.FileRepository;
 import com.alikgizatulin.storageapp.repository.FolderRepository;
 import com.alikgizatulin.storageapp.service.*;
 import io.minio.*;
@@ -32,7 +30,6 @@ public class MinioStorageService implements StorageService {
     private final FolderService folderService;
     private final MemberStorageService memberStorageService;
     private final FolderRepository folderRepository;
-    private final FileRepository fileRepository;
 
 
     @Transactional
@@ -73,13 +70,10 @@ public class MinioStorageService implements StorageService {
             this.fileService.createInFolder(parentFolderId,createFileRequest);
         }
 
-        MemberStorageResponse memberStorage = this.memberStorageService.getById(memberId);
+        var memberStorage = this.memberStorageService.getById(memberId);
         String bucket = memberStorage.teamStorageId().toString();
-        String pathToSave = memberId + "/";
-        if (parentFolderId != null) {
-            pathToSave += this.folderRepository.getPath(parentFolderId) + "/";
-        }
-        pathToSave += file.getOriginalFilename();
+        String pathToSave = this.buildFilePath(memberId,parentFolderId,file.getOriginalFilename());
+
         try {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
@@ -90,7 +84,7 @@ public class MinioStorageService implements StorageService {
             log.debug("Created new object: bucket={}, path={}", bucket, pathToSave);
         } catch (Exception e) {
             throw new StorageException(
-                    String.format("Error save file in bucket =%s, path=%s message=%s",
+                    String.format("Error save file in bucket =%s at path=%s, message=%s",
                             bucket,pathToSave, e.getMessage())
             );
         }
@@ -110,11 +104,12 @@ public class MinioStorageService implements StorageService {
     @Override
     public void deleteFolder(UUID folderId) {
         var folder = this.folderService.getById(folderId);
-        String pathToDelete = this.folderRepository.getPath(folderId);
+        String pathToDelete = this.buildFolderPath(folder.memberStorageId(),folderId);
         this.folderService.deleteById(folderId);
+
         var memberStorage = this.memberStorageService.getById(folder.memberStorageId());
-        pathToDelete =  memberStorage.memberId() + "/" + pathToDelete;
         String bucket = memberStorage.teamStorageId().toString();
+
         try {
             Iterable<Result<Item>> objects = minioClient.listObjects(
                     ListObjectsArgs.builder()
@@ -136,13 +131,12 @@ public class MinioStorageService implements StorageService {
                 );
                 for (Result<DeleteError> result : deleteResults) {
                     DeleteError error = result.get();
-                    log.error("Error in deleting object " + error.objectName() + "; " + error.message());
+                    log.error("Error deleting object={}, message={}",error.objectName(),error.message());
                 }
             }
-
         } catch (Exception e) {
             throw new StorageException(
-                    String.format("Error delete folder in bucket =%s, path =%s, message=%s",
+                    String.format("Error delete folder in bucket =%s at path =%s, message=%s",
                             bucket,pathToDelete,e.getMessage())
             );
         }
@@ -152,11 +146,12 @@ public class MinioStorageService implements StorageService {
     @Override
     public void deleteFile(UUID fileId) {
         var file = this.fileService.getById(fileId);
-        String pathToDelete = this.fileRepository.getPath(fileId);
+        String pathToDelete = this.buildFilePath(file.memberStorageId(),file.folderId(),file.name());
         this.fileService.deleteById(fileId);
+
         var memberStorage = this.memberStorageService.getById(file.memberStorageId());
-        pathToDelete = memberStorage.memberId() + "/" + pathToDelete;
         String bucket = memberStorage.teamStorageId().toString();
+
         try {
             this.minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -170,5 +165,27 @@ public class MinioStorageService implements StorageService {
                     bucket,pathToDelete,e.getMessage())
             );
         }
+    }
+
+    @Override
+    public FileStreamingResponseBody getFile(UUID fileId) {
+        var file = this.fileService.getById(fileId);
+        var memberStorage = this.memberStorageService.getById(file.memberStorageId());
+
+        String bucket = memberStorage.teamStorageId().toString();
+        String path = this.buildFilePath(file.memberStorageId(),file.folderId(),file.name());
+        return new MinioFileStreamingResponseBody(this.minioClient,bucket,path,file);
+    }
+
+    private String buildFolderPath(UUID memberId, UUID folderId) {
+        return memberId + "/" + this.folderRepository.getPath(folderId);
+    }
+
+    private String buildFilePath(UUID memberId, UUID folderId, String fileName) {
+        String path = memberId + "/";
+        if(folderId != null) {
+            path += this.folderRepository.getPath(folderId) + "/";
+        }
+        return path + fileName;
     }
 }
