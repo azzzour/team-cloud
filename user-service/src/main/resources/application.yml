@@ -13,7 +13,7 @@ keycloak:
   url: http://localhost:9090
   realm: team_cloud
   id: user-manager
-  secret: lxvWH0hFhQSGVF9BdUqVsPkDJgFw3UlQ
+  secret: KKlUEEnLFLTWqYR0Syx4FW67a9yyf9kq
 
 logging:
   level:

@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.7
+    image: quay.io/keycloak/keycloak:26.0.2
     container_name: keycloak
     environment:
       KC_DB: postgres
@@ -49,14 +49,14 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     volumes:
-      - ./keycloak:/opt/keycloak/data/import
+      - ./keycloak/team_cloud.json:/opt/keycloak/data/import/team_cloud.json
     depends_on:
       - postgres
     ports:
       - "9090:8080"
     networks:
       - team_cloud_net
-    command: start-dev --import-realm
+    command: 'start-dev --import-realm'
     restart: unless-stopped
 
   minio:

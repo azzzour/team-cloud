@@ -29,7 +29,7 @@ spring:
           keycloak:
             authorization-grant-type: client_credentials
             client-id: team_service
-            client-secret: AVrkD1vu6H8ketEfXpKOvPEiOoB36piS
+            client-secret: M3eLPuLQAT3bxf4opHKu506milZzia29
             scope:
               - view_users
 logging:
