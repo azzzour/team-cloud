@@ -11,16 +11,22 @@ import java.util.UUID;
 
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record TeamResponse(UUID id, String name, int memberCount,
-                           String ownerId, TeamStatus status, Instant createdAt) {
-    public static TeamResponse fromTeam(Team team) {
+public record TeamResponse(UUID id,
+                           String name,
+                           int memberCount,
+                           String ownerId,
+                           TeamStatus status,
+                           Instant createdAt,
+                           Instant updateAt) {
+    public static TeamResponse from(Team team) {
         return new TeamResponse(
                 team.getId(),
                 team.getName(),
                 team.getMemberCount(),
                 team.getOwnerId(),
                 team.getStatus(),
-                team.getCreatedAt()
+                team.getCreatedAt(),
+                team.getUpdatedAt()
         );
     }
 

@@ -2,7 +2,7 @@ package com.alikgizatulin.teamapp.controller;
 
 import com.alikgizatulin.teamapp.dto.CreateTeamRequest;
 import com.alikgizatulin.teamapp.dto.TeamResponse;
-import com.alikgizatulin.teamapp.dto.TeamSummaryResponse;
+import com.alikgizatulin.teamapp.dto.TeamSimpleResponse;
 import com.alikgizatulin.teamapp.dto.UpdateTeamRequest;
 import com.alikgizatulin.teamapp.service.TeamService;
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ public class TeamController {
     private final TeamService teamService;
 
     @GetMapping
-    public ResponseEntity<PagedModel<TeamSummaryResponse>> getTeams(
+    public ResponseEntity<PagedModel<TeamSimpleResponse>> getTeams(
             @RequestParam(required = false,defaultValue = "") String name,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size,
@@ -38,15 +38,15 @@ public class TeamController {
         String userId = authentication.getName();
         Pageable pageRequest = PageRequest.of(page,size, Sort.by(Sort.Direction.ASC,"name"));
         var teams = this.teamService.getUserTeams(userId,name,pageRequest)
-                .map(TeamSummaryResponse::fromTeamResponse);
+                .map(TeamSimpleResponse::from);
         return ResponseEntity.ok(new PagedModel<>(teams));
     }
 
     @PreAuthorize("@teamSecurity.isMember(#teamId, authentication.name)")
     @GetMapping("/{teamId}")
-    public ResponseEntity<TeamSummaryResponse> getTeam(@PathVariable("teamId") UUID teamId) {
+    public ResponseEntity<TeamSimpleResponse> getTeam(@PathVariable("teamId") UUID teamId) {
         var team = this.teamService.getById(teamId);
-        return ResponseEntity.ok(TeamSummaryResponse.fromTeamResponse(team));
+        return ResponseEntity.ok(TeamSimpleResponse.from(team));
     }
 
     @PostMapping

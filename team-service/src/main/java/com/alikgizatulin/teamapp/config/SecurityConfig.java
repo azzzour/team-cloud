@@ -18,6 +18,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/v1/teams/**").authenticated()
+                        .requestMatchers("/api/v1/team-members/**").authenticated()
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oAuth2ResourceServe ->
                         oAuth2ResourceServe.jwt(jwtConfigurer ->

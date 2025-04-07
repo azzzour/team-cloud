@@ -1,7 +1,6 @@
 package com.alikgizatulin.teamapp.repository;
 
 import com.alikgizatulin.teamapp.entity.Team;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,8 +23,8 @@ public interface TeamRepository extends JpaRepository<Team, UUID>, JpaSpecificat
     Page<Team> findAllUserTeams(@Param("userId") String userId,
                                              @Param("name") String name,
                                              Pageable pageable);
-
-    Page<Team> findAllByOwnerIdAndNameContainsIgnoreCase(String ownerId, String name, Pageable pageable);
     boolean existsByOwnerIdAndName(String ownerId, String name);
+
+    boolean existsByIdAndOwnerId(UUID id, String ownerId);
 
 }

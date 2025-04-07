@@ -5,12 +5,8 @@ import com.alikgizatulin.teamapp.dto.TeamResponse;
 import com.alikgizatulin.teamapp.dto.UpdateTeamRequest;
 import com.alikgizatulin.teamapp.entity.Team;
 import com.alikgizatulin.teamapp.entity.TeamMember;
-import com.alikgizatulin.teamapp.entity.TeamMemberStatus;
-import com.alikgizatulin.teamapp.exception.DuplicateTeamMemberException;
-import com.alikgizatulin.teamapp.exception.TeamMemberNotFoundException;
 import com.alikgizatulin.teamapp.exception.TeamNotFoundException;
 import com.alikgizatulin.teamapp.exception.TeamWithDuplicateNameException;
-import com.alikgizatulin.teamapp.repository.TeamMemberRepository;
 import com.alikgizatulin.teamapp.repository.TeamRepository;
 import com.alikgizatulin.teamapp.service.TeamService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -31,21 +26,19 @@ public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
 
-    private final TeamMemberRepository teamMemberRepository;
-
     @Override
     public Page<TeamResponse> getUserTeams(String userId, String name, Pageable pageable) {
         Page<Team> teams = this.teamRepository.findAllUserTeams(userId, name, pageable);
-        return teams.map(TeamResponse::fromTeam);
+        return teams.map(TeamResponse::from);
     }
 
 
     @Override
     @Transactional
     public TeamResponse getById(UUID id) {
-        Team team = this.teamRepository.findById(id)
+        return this.teamRepository.findById(id)
+                .map(TeamResponse::from)
                 .orElseThrow(() -> new TeamNotFoundException(id));
-        return TeamResponse.fromTeam(team);
     }
 
 
@@ -70,61 +63,8 @@ public class TeamServiceImpl implements TeamService {
         team.addTeamMember(teamMember);
         team = this.teamRepository.save(team);
         log.debug("Created new team: name={}, userId={}", request.name(), ownerId);
-        return TeamResponse.fromTeam(team);
+        return TeamResponse.from(team);
     }
-
-    @Transactional
-    @Override
-    public void addMember(UUID teamId, String userId, TeamMemberStatus status) {
-        Team team = this.teamRepository.findById(teamId)
-                .orElseThrow(() -> new TeamNotFoundException(teamId));
-
-        if(this.teamMemberRepository.existsByUserIdAndTeamId(userId,teamId)) {
-            throw new DuplicateTeamMemberException(teamId,userId);
-        }
-        TeamMember teamMember = TeamMember.builder()
-                .userId(userId)
-                .team(team)
-                .status(status)
-                .build();
-
-        team.addTeamMember(teamMember);
-        team.setMemberCount(team.getMemberCount() + 1);
-        this.teamRepository.save(team);
-        log.debug("Added new team member: userId={}, teamId={}",userId,teamId);
-    }
-
-
-    @Transactional
-    @Override
-    public void hardDeleteMember(UUID teamId, UUID teamMemberId) {
-        Team team = this.teamRepository.findById(teamId)
-                .orElseThrow(() -> new TeamNotFoundException(teamId));
-        TeamMember teamMember = this.teamMemberRepository.findById(teamMemberId)
-                .orElseThrow(() -> new TeamMemberNotFoundException(teamMemberId));
-        team.removeTeamMember(teamMember);
-        team.setMemberCount(Math.max(team.getMemberCount() - 1, 0));
-        this.teamRepository.save(team);
-        log.debug("Hard deleted team member: id={}",teamMemberId);
-    }
-
-    @Transactional
-    @Override
-    public void softDeleteMember(UUID teamId, UUID teamMemberId) {
-        if(!this.teamRepository.existsById(teamId)) {
-            throw new TeamNotFoundException(teamId);
-        }
-        TeamMember teamMember = this.teamMemberRepository.findById(teamMemberId)
-                .orElseThrow(() -> new TeamMemberNotFoundException(teamMemberId));
-        if(Objects.equals(teamMember.getStatus(),TeamMemberStatus.REMOVED)) {
-            log.debug("Team member already soft deleted: id={}",teamMemberId);
-            return;
-        }
-        teamMember.setStatus(TeamMemberStatus.REMOVED);
-        this.teamMemberRepository.save(teamMember);
-        log.debug("Soft deleted team member: id={}",teamMemberId);
-    }
-
 
     @Transactional
     @Override
@@ -147,7 +87,6 @@ public class TeamServiceImpl implements TeamService {
         this.teamRepository.deleteById(id);
         log.debug("Deleted team: id={}", id);
     }
-
 
 
 }

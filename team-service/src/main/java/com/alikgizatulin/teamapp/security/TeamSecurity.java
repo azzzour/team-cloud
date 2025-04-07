@@ -21,9 +21,15 @@ public class TeamSecurity {
     }
 
     public boolean isOwner(UUID teamId, String userId) {
-        return this.teamRepository.findById(teamId)
-                .map(team -> team.getOwnerId().equals(userId))
-                .orElse(false);
+        return this.teamRepository.existsByIdAndOwnerId(teamId,userId);
+    }
+
+    public boolean isOwnerOfMemberTeam(UUID memberId, String userId){
+        return this.teamMemberRepository.existsByMemberIdAndTeamOwnerId(memberId,userId);
+    }
+
+    public boolean isSameTeamMember(UUID memberId, String userId) {
+        return this.teamMemberRepository.existsUserInSameTeamAsMember(memberId,userId);
     }
 
 }

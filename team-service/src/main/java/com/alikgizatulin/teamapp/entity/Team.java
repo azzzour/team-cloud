@@ -46,8 +46,8 @@ public class Team {
     @BatchSize(size = 10)
     @OneToMany(mappedBy = "team",
             fetch = FetchType.LAZY,
-            cascade = {CascadeType.ALL},
-            orphanRemoval = true)
+            cascade = {CascadeType.PERSIST}
+    )
     private List<TeamMember> teamMembers = Collections.synchronizedList(new ArrayList<>());
 
     @Builder.Default

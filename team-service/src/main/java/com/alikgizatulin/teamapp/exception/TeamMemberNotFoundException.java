@@ -15,4 +15,8 @@ public class TeamMemberNotFoundException extends NotFoundException {
         super(TEAM_MEMBER_NOT_FOUND, new Object[]{id});
     }
 
+    public TeamMemberNotFoundException(String userId, UUID teamId) {
+        super(USER_NOT_FOUND_IN_TEAM, new Object[]{userId, teamId});
+    }
+
 }

@@ -10,16 +10,20 @@ import java.util.UUID;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record TeamMemberResponse(UUID id,
-                                 String username,
+                                 String userId,
+                                 UUID teamId,
                                  TeamMemberStatus status,
-                                 Instant joinedAt) {
+                                 Instant joinedAt,
+                                 Instant updatedAt) {
 
-    public static TeamMemberResponse makeTeamMemberResponse(TeamMember member, String username) {
+    public static TeamMemberResponse from(TeamMember member) {
         return new TeamMemberResponse(
                 member.getId(),
-                username,
+                member.getUserId(),
+                member.getTeam().getId(),
                 member.getStatus(),
-                member.getJoinedAt()
+                member.getJoinedAt(),
+                member.getUpdatedAt()
         );
     }
 }
