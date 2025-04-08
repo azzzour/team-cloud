@@ -1,10 +1,9 @@
-package com.alikgizatulin.teamapp.exception;
-
-import com.alikgizatulin.commonlibrary.exception.NotFoundException;
+package com.alikgizatulin.commonlibrary.exception;
 
 import java.util.UUID;
 
-import static com.alikgizatulin.teamapp.constant.ErrorCodes.TEAM_NOT_FOUND;
+import static com.alikgizatulin.commonlibrary.exception.MessageCode.TEAM_NOT_FOUND;
+
 
 public class TeamNotFoundException extends NotFoundException {
 

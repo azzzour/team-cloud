@@ -1,4 +1,4 @@
-package com.alikgizatulin.teamapp.security;
+package com.alikgizatulin.commonlibrary.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
