@@ -60,11 +60,11 @@ public class TeamMemberController {
                 .toList();
 
         var bodyResponse = new PagedModel<>
-                (new PageImpl<>(result, pageRequest, members.getTotalElements()));
+                (new PageImpl<>(result, pageRequest,members.getTotalElements()));
         return ResponseEntity.ok(bodyResponse);
     }
 
-    //info about me in team
+    //info about me in team + user info
     //@PreAuthorize("@teamSecurity.isMember(#teamId,authentication.name)")
     @GetMapping("/by-team/{teamId}/me")
     public ResponseEntity<TeamMemberWithUserResponse> getMyInfoInTeam(@PathVariable("teamId") UUID teamId,
@@ -77,12 +77,31 @@ public class TeamMemberController {
         return ResponseEntity.ok(TeamMemberWithUserResponse.from(member, user));
     }
 
+    @PreAuthorize("@teamSecurity.isOwner(#teamId,authentication.name) ||" +
+            "hasAuthority('SCOPE_view_team_members')")
+    @GetMapping("/by-team/{teamId}/{userId}")
+    public ResponseEntity<TeamMemberResponse> getMember(@PathVariable("teamId") UUID teamId,
+                                                        @PathVariable("userId") String userId) {
+        return ResponseEntity.ok(
+                this.teamMemberService
+                        .getByUserIdAndTeamId(userId, teamId)
+        );
+    }
+
     @PreAuthorize("@teamSecurity.isSameTeamMember(#memberId,authentication.name)")
     @GetMapping("/{memberId}")
     public ResponseEntity<TeamMemberWithUserSimpleResponse> getMember(@PathVariable("memberId") UUID memberId) {
         TeamMemberResponse member = this.teamMemberService.getById(memberId);
         UserSummaryDto user = this.userRestClient.getById(member.userId());
         return ResponseEntity.ok(TeamMemberWithUserSimpleResponse.from(member, user));
+    }
+
+    @PreAuthorize("@teamSecurity.isOwnerOfMemberTeam(#memberId,authentication.name) || " +
+            "hasAuthority('SCOPE_view_team_members')")
+    @GetMapping("/{memberId}/details")
+    public ResponseEntity<TeamMemberResponse> getDetailedMember(@PathVariable("memberId") UUID memberId) {
+        TeamMemberResponse member = this.teamMemberService.getById(memberId);
+        return ResponseEntity.ok(member);
     }
 
 

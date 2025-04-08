@@ -1,12 +1,12 @@
 package com.alikgizatulin.teamapp.service.impl;
 
+import com.alikgizatulin.commonlibrary.exception.TeamMemberNotFoundException;
 import com.alikgizatulin.teamapp.dto.TeamMemberResponse;
 import com.alikgizatulin.teamapp.entity.Team;
 import com.alikgizatulin.teamapp.entity.TeamMember;
 import com.alikgizatulin.teamapp.entity.TeamMemberStatus;
 import com.alikgizatulin.teamapp.exception.DuplicateTeamMemberException;
-import com.alikgizatulin.teamapp.exception.TeamMemberNotFoundException;
-import com.alikgizatulin.teamapp.exception.TeamNotFoundException;
+import com.alikgizatulin.commonlibrary.exception.TeamNotFoundException;
 import com.alikgizatulin.teamapp.repository.TeamMemberRepository;
 import com.alikgizatulin.teamapp.repository.TeamRepository;
 import com.alikgizatulin.teamapp.service.TeamMemberService;

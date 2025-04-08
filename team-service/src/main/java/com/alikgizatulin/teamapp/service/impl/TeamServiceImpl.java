@@ -5,7 +5,7 @@ import com.alikgizatulin.teamapp.dto.TeamResponse;
 import com.alikgizatulin.teamapp.dto.UpdateTeamRequest;
 import com.alikgizatulin.teamapp.entity.Team;
 import com.alikgizatulin.teamapp.entity.TeamMember;
-import com.alikgizatulin.teamapp.exception.TeamNotFoundException;
+import com.alikgizatulin.commonlibrary.exception.TeamNotFoundException;
 import com.alikgizatulin.teamapp.exception.TeamWithDuplicateNameException;
 import com.alikgizatulin.teamapp.repository.TeamRepository;
 import com.alikgizatulin.teamapp.service.TeamService;

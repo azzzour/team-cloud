@@ -62,7 +62,8 @@ public class TeamController {
         ).body(bodyResponse);
     }
 
-    @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name)")
+    @PreAuthorize("@teamSecurity.isOwner(#teamId, authentication.name) || " +
+            "hasAuthority('SCOPE_view_teams')")
     @GetMapping("/{teamId}/details")
     public ResponseEntity<TeamResponse> getDetailedTeam(@PathVariable("teamId") UUID teamId) {
         return ResponseEntity.ok(this.teamService.getById(teamId));

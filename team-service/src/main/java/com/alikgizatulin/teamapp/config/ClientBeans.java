@@ -2,7 +2,7 @@ package com.alikgizatulin.teamapp.config;
 
 import com.alikgizatulin.teamapp.client.UserRestClient;
 import com.alikgizatulin.teamapp.client.UserRestClientDefault;
-import com.alikgizatulin.teamapp.security.OAuthClientHttpRequestInterceptor;
+import com.alikgizatulin.commonlibrary.security.OAuthClientHttpRequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
