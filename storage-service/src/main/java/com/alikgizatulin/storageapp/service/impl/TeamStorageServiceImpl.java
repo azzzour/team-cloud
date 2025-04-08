@@ -1,5 +1,6 @@
 package com.alikgizatulin.storageapp.service.impl;
 
+import com.alikgizatulin.storageapp.client.TeamServiceRestClient;
 import com.alikgizatulin.storageapp.dto.TeamStorageResponse;
 import com.alikgizatulin.storageapp.entity.TeamStorage;
 import com.alikgizatulin.storageapp.exception.DuplicateTeamStorageException;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class TeamStorageServiceImpl implements TeamStorageService {
 
     private final TeamStorageRepository teamStorageRepository;
+    private final TeamServiceRestClient teamServiceRestClient;
 
     @Override
     public TeamStorageResponse getById(UUID id) {
@@ -39,6 +41,9 @@ public class TeamStorageServiceImpl implements TeamStorageService {
         if(this.teamStorageRepository.existsById(teamId)) {
             throw new DuplicateTeamStorageException(teamId);
         }
+        //check exists team
+        this.teamServiceRestClient.getTeamById(teamId);
+
         TeamStorage teamStorage = TeamStorage.builder()
                 .teamId(teamId)
                 .totalSize(totalSize)

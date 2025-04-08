@@ -1,5 +1,6 @@
 package com.alikgizatulin.storageapp.service.impl;
 
+import com.alikgizatulin.storageapp.client.TeamServiceRestClient;
 import com.alikgizatulin.storageapp.dto.MemberStorageResponse;
 import com.alikgizatulin.storageapp.entity.MemberStorage;
 import com.alikgizatulin.storageapp.entity.TeamStorage;
@@ -25,6 +26,7 @@ public class MemberStorageServiceImpl implements MemberStorageService {
 
     private final MemberStorageRepository memberStorageRepository;
     private final TeamStorageRepository teamStorageRepository;
+    private final TeamServiceRestClient teamServiceRestClient;
 
     @Override
     public MemberStorageResponse getById(UUID id) {
@@ -47,6 +49,9 @@ public class MemberStorageServiceImpl implements MemberStorageService {
         if (this.memberStorageRepository.existsById(memberId)) {
             throw new DuplicateMemberStorageException(memberId);
         }
+        //check exists team member
+        this.teamServiceRestClient.getTeamMemberById(memberId);
+
         long availableSize = teamStorage.getTotalSize() - teamStorage.getReservedSize();
         if (totalSize > availableSize) {
             throw new NotEnoughTeamStorageException(teamStorageId, memberId);
